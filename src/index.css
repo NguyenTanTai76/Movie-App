@@ -36,3 +36,8 @@
 body {
   font-family: "Netflex Sans";
 }
+
+.reset-img-position {
+  left: auto !important;
+  position: static !important;
+}

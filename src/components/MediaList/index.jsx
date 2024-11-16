@@ -1,29 +1,37 @@
-import { useEffect, useState } from "react";
-import MovieCard from "./MovieCard";
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom"; // Import các hook
+import MovieCard from "@components/MovieCard";
+import useFetch from "@hooks/useFetch";
 
 const MediaList = ({ title, tabs }) => {
-  const [mediaList, setMediaList] = useState([]);
+  const navigate = useNavigate(); // Để thay đổi URL
+  const location = useLocation(); // Để lấy tham số query trong URL
   const [activeTabId, setActiveTabId] = useState(tabs[0]?.id);
 
+  // Đọc query parameter từ URL để thiết lập activeTabId
   useEffect(() => {
-    const url = tabs.find((tab) => tab.id === activeTabId)?.url;
-
-    if (url) {
-      fetch(url, {
-        method: "GET",
-        headers: {
-          accept: "application/json",
-          Authorization:
-            "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5MTVlMGYwYjQ1ZjM5MjQ4YjBkYWU0NDExMmY1ZWIxNiIsIm5iZiI6MTcyOTM2OTk1MC4xOTAxMjYsInN1YiI6IjY3MTNjZTFhMmJiYmE2NWY3YjEwZDY1MCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.eE5HCYSo-l3T3W7khOAdXQaE6VL5RnnCqN5U-pfZQsg",
-        },
-      }).then(async (res) => {
-        const data = await res.json();
-        console.log({ data });
-        const trendingMediaList = data.results.slice(0, 12);
-        setMediaList(trendingMediaList);
-      });
+    const params = new URLSearchParams(location.search);
+    const tabFromUrl = params.get("activeTab"); // Lấy activeTab từ URL
+    if (tabFromUrl && tabs.find((tab) => tab.id === tabFromUrl)) {
+      setActiveTabId(tabFromUrl);
     }
-  }, [activeTabId, tabs]);
+  }, [location, tabs]);
+
+  // Tạo URL dựa trên activeTabId
+  const url = tabs.find((tab) => tab.id === activeTabId)?.url;
+  const { data } = useFetch({ url });
+
+  const mediaList = (data.results || []).slice(0, 12);
+
+  // Hàm thay đổi tab và cập nhật URL
+  const handleTabChange = (tabId) => {
+    setActiveTabId(tabId);
+    // Cập nhật URL để giữ trạng thái tab khi quay lại
+    navigate({
+      pathname: location.pathname,
+      search: `?activeTab=${tabId}`, // Thêm query parameter activeTab vào URL
+    });
+  };
 
   return (
     <div className="bg-black px-8 py-10 text-[1.2vw] text-white">
@@ -34,7 +42,7 @@ const MediaList = ({ title, tabs }) => {
             <li
               key={tab.id}
               className={`cursor-pointer rounded px-2 py-1 ${tab.id === activeTabId ? "bg-white text-black" : ""}`}
-              onClick={() => setActiveTabId(tab.id)}
+              onClick={() => handleTabChange(tab.id)} // Chọn tab và thay đổi URL
             >
               {tab.name}
             </li>
@@ -46,6 +54,7 @@ const MediaList = ({ title, tabs }) => {
         {mediaList.map((media) => (
           <MovieCard
             key={media.id}
+            id={media.id}
             title={media.title || media.name}
             releaseDate={media.release_date || media.first_air_date}
             poster={media.poster_path}
