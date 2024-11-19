@@ -37,7 +37,7 @@ const ImageComponent = ({
   return (
     <img
       src={currentSrc}
-      className={`${className} ${currentSrc === src ? "" : "blur-md"}`}
+      className={`${className} ${currentSrc === src || !src ? "" : "blur-md"}`}
       width={width}
       height={height}
       alt={alt}

@@ -1,14 +1,17 @@
 import ImageComponent from "@components/Image";
+import { Link } from "react-router-dom";
 
-const ActorInfo = ({ name, character, profilePath, episodeCount }) => {
+const ActorInfo = ({ id, name, character, profilePath, episodeCount }) => {
   return (
-    <div className="rounded-lg border border-slate-300 bg-black shadow-sm">
+    <Link
+      to={`/people/${id}`} // Đảm bảo sử dụng template literal cho đường dẫn
+      className="rounded-lg border border-slate-300 bg-black shadow-sm"
+    >
       <ImageComponent
         className="rounded-lg"
         src={
-          profilePath
-            ? `https://media.themoviedb.org/t/p/w276_and_h350_face${profilePath}`
-            : "/ActorNoImage.svg"
+          profilePath &&
+          `https://media.themoviedb.org/t/p/w276_and_h350_face${profilePath}` // SỬA LỖI TẠI ĐÂY
         }
         alt="img-actor"
         width={276}
@@ -23,7 +26,7 @@ const ActorInfo = ({ name, character, profilePath, episodeCount }) => {
           </p>
         )}
       </div>
-    </div>
+    </Link>
   );
 };
 

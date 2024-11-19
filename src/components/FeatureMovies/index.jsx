@@ -21,28 +21,26 @@ const FeatureMovies = () => {
     (video) => video.type === "Trailer" && video.site === "YouTube",
   )?.key;
 
-  console.log(videoResponse, temp);
-
   const movies = (popularMoviesResponse.results || []).slice(0, 4);
 
+  // Set active movie ID khi lần đầu render
   useEffect(() => {
     if (movies[0]?.id) {
       setActiveMovieId(movies[0].id);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(movies)]);
 
-  // Tự động chuyển đổi phim mỗi 4 giây
+  // Tự động chuyển phim mỗi 4 giây
   useEffect(() => {
     const intervalId = setInterval(() => {
       setActiveMovieId((prevId) => {
         const currentIndex = movies.findIndex((movie) => movie.id === prevId);
-        const nextIndex = (currentIndex + 1) % movies.length; // Quay vòng lại đầu danh sách
+        const nextIndex = (currentIndex + 1) % movies.length;
         return movies[nextIndex].id;
       });
     }, 4000);
 
-    return () => clearInterval(intervalId);
+    return () => clearInterval(intervalId); // Dọn dẹp interval khi component unmount
   }, [movies]);
 
   return (
@@ -50,15 +48,7 @@ const FeatureMovies = () => {
       {movies
         .filter((movie) => movie.id === activeMovieId)
         .map((movie) => (
-          <Movie
-            key={movie.id}
-            data={movie}
-            trailerVideoKey={
-              (videoResponse?.results || []).find(
-                (video) => video.type === "Trailer" && video.site === "YouTube",
-              )?.key
-            }
-          />
+          <Movie key={movie.id} data={movie} trailerVideoKey={temp} />
         ))}
 
       <PaginateIndicator
