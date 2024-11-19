@@ -28,7 +28,7 @@ const ImageComponent = ({
     img.onerror = handleError;
 
     return () => {
-      // Clean up các sự kiện khi component bị unmount
+      // Clean up các events khi component bị unmount
       img.onload = null;
       img.onerror = null;
     };
